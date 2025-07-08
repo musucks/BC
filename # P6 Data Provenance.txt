@@ -1,0 +1,40 @@
+# P6 Data Provenance
+
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.8.2 <0.9.0;
+
+contract DataProvenance {
+    struct DataEntry {
+        string dataHash;
+        address owner;
+        uint256 timestamp;
+    }
+
+    mapping(string => DataEntry[]) public provenanceRecords;
+
+    event DataLogged(string dataId, string dataHash, address indexed owner, uint256 timestamp);
+
+    // Function to log new data
+    function logData(string memory dataId, string memory dataHash) public {
+        DataEntry memory entry = DataEntry(dataHash, msg.sender, block.timestamp);
+        provenanceRecords[dataId].push(entry);
+        emit DataLogged(dataId, dataHash, msg.sender, block.timestamp);
+    }
+
+    // Function to retrieve full history for a given data ID
+    function getProvenance(string memory dataId) public view returns (DataEntry[] memory) {
+        return provenanceRecords[dataId];
+    }
+}
+
+
+#LOGDATA
+dataid : "abc"
+datahash: "Hash1"
+
+#getprovenance
+dataId: "abc"
+
+#provenancerecords
+"abc"
+0

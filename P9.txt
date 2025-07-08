@@ -1,0 +1,78 @@
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.0;
+
+contract VotingForTopper {
+
+    address public owner;
+    string public purpose;
+
+    struct Voter {
+        bool authorized;
+        bool voted;
+    }
+
+    uint public totalVotes;
+    uint public teamA;
+    uint public teamB;
+    uint public teamC;
+
+    mapping(address => Voter) public info;
+
+    constructor(string memory _name) {
+        purpose = _name;
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call this");
+        _;
+    }
+
+    function authorize(address _person) public onlyOwner {
+        info[_person].authorized = true;
+    }
+
+    function voteTeamA() public {
+        require(!info[msg.sender].voted, "Already voted");
+        require(info[msg.sender].authorized, "Not authorized to vote");
+        info[msg.sender].voted = true;
+        teamA++;
+        totalVotes++;
+    }
+
+    function voteTeamB() public {
+        require(!info[msg.sender].voted, "Already voted");
+        require(info[msg.sender].authorized, "Not authorized to vote");
+        info[msg.sender].voted = true;
+        teamB++;
+        totalVotes++;
+    }
+
+    function voteTeamC() public returns (string memory) {
+        require(!info[msg.sender].voted, "Already voted");
+        require(info[msg.sender].authorized, "Not authorized to vote");
+        info[msg.sender].voted = true;
+        teamC++;
+        totalVotes++;
+        return "Thanks for Voting";
+    }
+
+    function getTotalVotes() public view returns (uint) {
+        return totalVotes;
+    }
+
+    function resultOfVoting() public view returns (string memory) {
+        if (teamA > teamB && teamA > teamC) {
+            return "Team A is Winning";
+        } else if (teamB > teamA && teamB > teamC) {
+            return "Team B is Winning";
+        } else if (teamC > teamA && teamC > teamB) {
+            return "Team C is Winning";
+        } else {
+            return "No One is Winning / Tie";
+        }
+    }
+}
+
+#Authorize
+person: "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"

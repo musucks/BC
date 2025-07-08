@@ -1,0 +1,77 @@
+#P5
+
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.8.2 <0.9.0;
+
+contract MLDataRegistry {
+
+    struct Dataset {
+        string dataHash;         // Hash of the dataset
+        address uploader;        // Who uploaded it
+        uint timestamp;          // When it was uploaded
+    }
+
+    struct MLModel {
+        string modelHash;        // Hash of the trained model
+        string dataHash;         // Reference to the dataset used
+        string metrics;          // Accuracy, loss, etc.
+        address trainer;         // Who trained the model
+        uint timestamp;          // When training was logged
+    }
+
+    mapping(string => Dataset) public datasets;
+    mapping(string => MLModel) public models;
+
+    event DatasetUploaded(string dataHash, address uploader, uint timestamp);
+    event ModelTrained(string modelHash, string dataHash, string metrics, address trainer, uint timestamp);
+
+    // Upload dataset hash
+    function uploadDataset(string memory _dataHash) public {
+        require(bytes(_dataHash).length > 0, "Invalid hash");
+        require(datasets[_dataHash].timestamp == 0, "Dataset already registered");
+
+        datasets[_dataHash] = Dataset(_dataHash, msg.sender, block.timestamp);
+        emit DatasetUploaded(_dataHash, msg.sender, block.timestamp);
+    }
+
+    // Register a trained ML model
+    function registerModel(string memory _modelHash, string memory _dataHash, string memory _metrics) public {
+        require(bytes(_modelHash).length > 0, "Invalid model hash");
+        require(datasets[_dataHash].timestamp != 0, "Dataset must be uploaded first");
+        require(models[_modelHash].timestamp == 0, "Model already registered");
+
+        models[_modelHash] = MLModel(_modelHash, _dataHash, _metrics, msg.sender, block.timestamp);
+        emit ModelTrained(_modelHash, _dataHash, _metrics, msg.sender, block.timestamp);
+    }
+
+    // Get dataset info
+    function getDataset(string memory _dataHash) public view returns (Dataset memory) {
+        require(datasets[_dataHash].timestamp != 0, "Dataset not found");
+        return datasets[_dataHash];
+    }
+
+    // Get model info
+    function getModel(string memory _modelHash) public view returns (MLModel memory) {
+        require(models[_modelHash].timestamp != 0, "Model not found");
+        return models[_modelHash];
+    }
+}
+
+
+MODEL HASH
+"6b1b36cbb04b41490bfc0ab2bfa26f86a6f3772cbf4320f4bd4988d2d0c14cdd"
+
+DATA HASH
+"9a0364b9e99bb480dd25e1f0284c8555c1053d6d4365b384b56d93561c9fefb0"
+
+METRICS
+"accuracy:92.5,loss:0.123"
+
+DATASET/GETDATA
+"9a0364b9e99bb480dd25e1f0284c8555c1053d6d4365b384b56d93561c9fefb0"
+
+GET MODEL 
+"6b1b36cbb04b41490bfc0ab2bfa26f86a6f3772cbf4320f4bd4988d2d0c14cdd"
+
+MODEL
+"ABC"
